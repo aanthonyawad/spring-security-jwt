@@ -7,11 +7,15 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.awad.anthony.springsecurityjwt.exceptions.JwtErrnException;
 import com.awad.anthony.springsecurityjwt.security.models.Users;
 import com.awad.anthony.springsecurityjwt.security.repositories.UserRepository;
 import com.awad.anthony.springsecurityjwt.security.requests.AuthenticationRequest;
@@ -40,14 +44,19 @@ public class HelloResource {
 	
 	@PostMapping(value="/createuser")
 	public ResponseEntity<?> signUp(@RequestBody CreateUserRequest createUserRequest) throws Exception{
-		
+
 		Users userEntity = new Users(createUserRequest);
-		userEntity = userRepository.save(userEntity);
+		UserDetails userDetails = null;
 		
-		final UserDetails userDetails = userDetailsService.loadUserByUsername(userEntity.getEmail());
+		try {
+			userDetails = userDetailsService.loadUserByUsername(userEntity.getEmail());
+			throw new Exception("username Found Exception");
+		}catch(UsernameNotFoundException e) {
+			userEntity = userRepository.save(userEntity);
+		}
 		
+		userDetails = userDetailsService.loadUserByUsername(userEntity.getEmail());
 		final String jwt = jwtUtil.generateToken(userDetails);
-		
 		return ResponseEntity.ok(new AuthenticationResponse(jwt));
 		
 	}
@@ -78,5 +87,5 @@ public class HelloResource {
 	public ResponseEntity<?>isAuthenticated(){
 		return ResponseEntity.ok(new IsAuthenticatedResponse(true));
 	}
-	
 }
+

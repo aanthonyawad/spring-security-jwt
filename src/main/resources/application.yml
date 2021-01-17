@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    password: toor
+#   local 
+#    url: jdbc:mysql://localhost:3206/security?createDatabaseIfNotExist=true
+#    docker
+    url: jdbc:mysql://172.17.0.2:3306/security?createDatabaseIfNotExist=true
+    username: root
+  jpa:
+    hibernate:
+      ddl-auto: update

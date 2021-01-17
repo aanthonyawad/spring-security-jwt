@@ -32,7 +32,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable()
-			.authorizeRequests().antMatchers("/authenticate","/createuser").permitAll()
+			.authorizeRequests().antMatchers("/authenticate","/createuser","/isnotauthenticated").permitAll()
 			.anyRequest().authenticated()
 			
 			
@@ -40,6 +40,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 			.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		
 		http.addFilterBefore(jwtRequestFilter,UsernamePasswordAuthenticationFilter.class);
+		
 	}
 	
 	@Bean

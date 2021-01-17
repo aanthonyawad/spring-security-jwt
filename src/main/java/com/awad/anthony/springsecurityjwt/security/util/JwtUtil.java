@@ -5,8 +5,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import com.awad.anthony.springsecurityjwt.exceptions.JwtErrnException;
+import com.awad.anthony.springsecurityjwt.filters.JwtRequestFilter;
+import com.awad.anthony.springsecurityjwt.security.requests.IsAuthenticatedResponse;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -35,7 +42,7 @@ public class JwtUtil {
 		
 	}
 
-	private Claims extractAllClaims(String token) {
+	private Claims extractAllClaims(String token){
 		return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
 	}
 	
@@ -52,7 +59,11 @@ public class JwtUtil {
 		final String username = extractUsername(token);
 		return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
 	}
-	
+
+    @ExceptionHandler(value = { JwtErrnException.class })
+    public ResponseEntity<Object> handleInvalidInputException(JwtErrnException ex) {
+        return new ResponseEntity<Object>(new IsAuthenticatedResponse(false),HttpStatus.BAD_REQUEST);
+    }
 	
 	
 }
